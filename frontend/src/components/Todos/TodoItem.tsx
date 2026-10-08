@@ -1,23 +1,31 @@
 import { useState } from "react";
-import { updateTodo } from "../../services/todoService";
+import { deleteTodo, updateTodo } from "../../services/todoService";
 
-const TodoItem = ({ todo, onTodoUpdated }) => {
+const TodoItem = ({ todo, onTodoUpdated, onTodoDeleted, onEdit }) => {
     const [loading, setLoading] = useState(false);
 
     const handleCheck = async () => {
         try {
             setLoading(true);
 
-            const updatedTodo = await updateTodo(
-                todo.id,
-                !todo.completed
-            );
+            const updatedTodo = await updateTodo(todo.id, {
+                completed: !todo.completed,
+            });
 
             onTodoUpdated(updatedTodo);
         } catch (error) {
             console.error(error);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleDelete = async () => {
+        try {
+            await deleteTodo(todo.id);
+            onTodoDeleted(todo.id);
+        } catch (error) {
+            console.error(error);
         }
     };
 
@@ -35,6 +43,14 @@ const TodoItem = ({ todo, onTodoUpdated }) => {
             <span>
                 {todo.completed ? "Completed" : "Pending"}
             </span>
+
+            <button onClick={() => onEdit(todo)}>
+                Edit
+            </button>
+
+            <button onClick={handleDelete}>
+                Delete
+            </button>
         </li>
     );
 };
